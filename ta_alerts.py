@@ -190,22 +190,32 @@ if __name__ == '__main__':
                 else:
                     indicator_states[key]['zero_state'] = 'BELOW'
 
+            alert_list = []
             for key in indicator_states:
                 if indicator_states[key]['cross_state'] != indicator_states_last[key]['cross_state']:
                     alert_message = "{:.0f}".format(key / 60) + ' min ' + 'MACD-Signal crossed ' + indicator_states[key]['cross_state'] + '.'
-                    logger.debug('alert_message: ' + alert_message)
-                    telegram_message(alert_message)
+                    logger.debug('Appending alert_message: ' + alert_message)
+                    #telegram_message(alert_message)
+                    alert_list.append(alert_message)
                     indicator_states_last[key]['cross_state'] = indicator_states[key]['cross_state']
                 else:
                     logger.debug('No MACD-Signal change.')
 
                 if indicator_states[key]['zero_state'] != indicator_states_last[key]['zero_state']:
                     alert_message = "{:.0f}".format(key / 60) + ' min ' + 'MACD-Zero crossed ' + indicator_states[key]['zero_state'] + '.'
-                    logger.debug('alert_message: ' + alert_message)
-                    telegram_message(alert_message)
+                    logger.debug('Appending alert_message: ' + alert_message)
+                    #telegram_message(alert_message)
+                    alert_list.append(alert_message)
                     indicator_states_last[key]['zero_state'] = indicator_states[key]['zero_state']
                 else:
                     logger.debug('No MACD-Zero change.')
+
+            if loop_count > 1 and len(alert_list) > 0:
+                logger.info('Alert list not empty. Sending via Telegram.')
+                for alert in alert_list:
+                    logger.debug('Sending Telegram alert: ' + alert)
+                    telegram_message(alert)
+                    time.sleep(1)
             
             time.sleep(loop_time)
 
