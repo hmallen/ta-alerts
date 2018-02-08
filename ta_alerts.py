@@ -11,10 +11,16 @@ import talib.abstract
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import time
 
+# User modifiable parameters
+analysis_bins = [300, 1800] # Desired candles sizes for analysis
+telegram_user = 382606465  # @hmallen
+loop_time = 60
+
+# Required constants
+valid_bins = [300, 900, 1800, 7200, 14400, 86400]   # Valid candle sizes for API
+
 config_file = 'config/config.ini'
 log_file = 'logs/' + datetime.datetime.now().strftime('%m%d%Y-%H%M%S') + '.log'
-
-loop_time = 60  # Time (seconds) between technical analysis calculations
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -51,9 +57,7 @@ if not os.path.exists('logs/old'):
 
 
 # Get candle data
-def get_candles(time_bin, product='BTC_STR'):
-    valid_bins = [300, 900, 1800, 7200, 14400, 86400]
-
+def get_candles(product, time_bin):
     try:
         if time_bin in valid_bins:
             data = polo.returnChartData(product, period=time_bin)
@@ -64,7 +68,6 @@ def get_candles(time_bin, product='BTC_STR'):
                 candle_list = []
                 for k, v in candle.items():
                     candle_list.append(v)
-                
                 candle_array.append(candle_list)
 
             data_array = np.stack(np.array(candle_array, dtype=float), axis=-1)
@@ -109,11 +112,8 @@ def macd_calc(data, input_prices='close', long=26, short=10, signal=9):
         macd_values = {
             'macd': macd_current,
             'signal': signal_current,
-            'histogram': histogram_current,
-            'time_bin': data['time_bin']
+            'histogram': histogram_current
             }
-
-        #macd_values = (macd_current, signal_current, histogram_current)
 
         return macd_values
 
@@ -122,13 +122,13 @@ def macd_calc(data, input_prices='close', long=26, short=10, signal=9):
         raise
 
 
-def telegram_message(bot, msg):
-    target_user = 382606465  # @hmallen
-    bot.sendMessage(chat_id=target_user, text=msg)
+def telegram_message(msg):
+    try:
+        updater.bot.sendMessage(chat_id=telegram_user, text=msg)
 
-
-def example_function():
-    pass
+    except Exception:
+        logger.exception('Exception while sending Telegram alert.')
+        raise
 
 
 if __name__ == '__main__':
@@ -152,54 +152,18 @@ if __name__ == '__main__':
 
         # Initialize Poloniex
         polo = poloniex.Poloniex()
-        #polo = poloniex.Poloniex(polo_key, polo_secret)
 
-        # Time bins to use for analysis
-        analysis_bins = [300, 1800]
-
-        # Alert trigger states
-        alert_states = {}
-        alert_states_last = {}
-
-        # Determine initial values to set alert trigger states
-        # Get candle data
-        candles = []
+        # State of indicator lines (ie. Crossed-over/under, Above/below zero)
+        indicator_states = {}
+        indicator_states_last = {}
         for val in analysis_bins:
-            cand = get_candles(time_bin=val, product='BTC_STR')
-            candles.append(cand)
-            time.sleep(1)   # Delay to prevent excessive API calls
+            indicator_states[val] = {}
+            indicator_states[val]['cross_state'] = None
+            indicator_states[val]['zero_state'] = None
+            indicator_states_last[val] = {}
+            indicator_states_last[val]['cross_state'] = None
+            indicator_states_last[val]['zero_state'] = None
 
-        # Run technical analysis
-        macd_output = []
-        for candle_input in candles:
-            macd_values = macd_calc(candle_input, input_prices='close', long=26, short=10, signal=9)
-            macd_output.append(macd_values)
-            logger.debug('macd: ' + str(macd_values['macd']))
-            logger.debug('signal: ' + str(macd_values['signal']))
-            logger.debug('histogram: ' + str(macd_values['histogram']))
-
-        # Display results
-        for output in macd_output:
-            logger.debug('Setting initial alert trigger states.')
-            logger.debug('Time Bin: ' + "{:.0f}".format(output['time_bin'] / 60) + ' min')
-            logger.debug('MACD: ' + str(output['macd']))
-            logger.debug('Signal: ' + str(output['signal']))
-            logger.debug('Histogram: ' + str(output['histogram']))
-
-            logger.debug('Setting initial alert trigger states.')
-            alert_arg = str(output['time_bin'])
-            if output['histogram'] > 0:
-                alert_states[alert_arg] = ['OVER', 'na']
-            else:
-                alert_states[alert_arg] = ['UNDER', 'na']
-
-            if output['macd'] > 0:
-                alert_states[alert_arg][1] = 'ABOVE'
-            else:
-                alert_states[alert_arg][1] = 'BELOW'
-            logger.debug('Alert State (' + alert_arg + '): ' + str(alert_states[alert_arg]))
-            alert_states_last[alert_arg] = alert_states[alert_arg]
-    
     except Exception as e:
         logger.exception('Failed during initialization. Exiting.')
         logger.exception(e)
@@ -208,60 +172,37 @@ if __name__ == '__main__':
     loop_count = 0
     while (True):
         loop_count += 1
-        print()
-        logger.debug('loop_count: ' + str(loop_count))
         try:
-            # Get candle data
-            candles = []
-            for val in analysis_bins:
-                cand = get_candles(time_bin=val, product='BTC_STR')
-                candles.append(cand)
-                time.sleep(1)   # Delay to prevent excessive API calls
+            results = {}
+            for test in analysis_bins:
+                candles = get_candles(product='BTC_STR', time_bin=test)
+                results[test] = macd_calc(data=candles)
+                time.sleep(1)
 
-            # Run technical analysis
-            macd_output = []
-            for candle_input in candles:
-                macd_values = macd_calc(candle_input, input_prices='close', long=26, short=10, signal=9)
-                macd_output.append(macd_values)
-                #logger.debug('macd: ' + str(macd_values['macd']))
-                #logger.debug('signal: ' + str(macd_values['signal']))
-                #logger.debug('histogram: ' + str(macd_values['histogram']))
-
-            # Display results
-            for output in macd_output:
-                print()
-                logger.info('Time Bin: ' + "{:.0f}".format(output['time_bin'] / 60) + ' min')
-                logger.info('MACD: ' + str(output['macd']))
-                logger.info('Signal: ' + str(output['signal']))
-                logger.info('Histogram: ' + str(output['histogram']))
-
-                alert_arg = str(output['time_bin'])
-                if output['histogram'] > 0:
-                    alert_states[alert_arg][0] = 'OVER'
+            for key in results:
+                if results[key]['histogram'] > 0:
+                    indicator_states[key]['cross_state'] = 'ABOVE'
                 else:
-                    alert_states[alert_arg][0] = 'UNDER'
+                    indicator_states[key]['cross_state'] = 'BELOW'
 
-                if output['macd'] > 0:
-                    alert_states[alert_arg][1] = 'ABOVE'
+                if results[key]['macd'] > 0:
+                    indicator_states[key]['zero_state'] = 'ABOVE'
                 else:
-                    alert_states[alert_arg][1] = 'BELOW'
-                logger.debug('Alert State (' + alert_arg + '): ' + str(alert_states[alert_arg]))
+                    indicator_states[key]['zero_state'] = 'BELOW'
 
-            # Check for changes
-            for key in alert_states:
-                if alert_states[key][0] != alert_states_last[key][0]:
-                    print()
-                    logger.debug('MACD-Signal crossover detected. Sending Telegram alert.')
-                    telegram_message = "{:.0f}".format(output['time_bin'] / 60) + ' min ' + ' MACD crossed ' + alert_states[key][0] + ' signal.'
-                    telegram_message(updater.bot, telegram_message)
-                    alert_states_last[key][0] = alert_states[key][0]
-                if alert_states[key][1] != alert_states_last[key][1]:
-                    print()
-                    logger.debug('MACD-Zero crossover detected. Sending Telegram alert.')
-                    telegram_message = "{:.0f}".format(output['time_bin'] / 60) + ' min ' + ' MACD crossed ' + alert_states[key][1] + ' zero.'
-                    telegram_message(updater.bot, telegram_message)
-                    alert_states_last[key][1] = alert_states[key][1]
+            for key in indicator_states:
+                if indicator_states[key]['cross_state'] != indicator_states_last[key]['cross_state']:
+                    logger.info('MACD-SIGNAL CROSS')
+                    indicator_states_last[key]['cross_state'] = indicator_states[key]['cross_state']
+                else:
+                    logger.info('NO MACD-SIGNAL CHANGE')
 
+                if indicator_states[key]['zero_state'] != indicator_states_last[key]['zero_state']:
+                    logger.info('MACD-ZERO CROSS')
+                    indicator_states_last[key]['zero_state'] = indicator_states[key]['zero_state']
+                else:
+                    logger.info('NO MACD-ZERO CHANGE')
+            
             time.sleep(loop_time)
 
         except Exception as e:
