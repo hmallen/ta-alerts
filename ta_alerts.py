@@ -14,7 +14,7 @@ import time
 # User modifiable parameters
 analysis_bins = [300, 1800] # Desired candles sizes for analysis
 telegram_user = 382606465  # @hmallen
-loop_time = 60
+loop_time = 30
 
 # Required constants
 valid_bins = [300, 900, 1800, 7200, 14400, 86400]   # Valid candle sizes for API
@@ -192,16 +192,20 @@ if __name__ == '__main__':
 
             for key in indicator_states:
                 if indicator_states[key]['cross_state'] != indicator_states_last[key]['cross_state']:
-                    logger.info('MACD-SIGNAL CROSS')
+                    alert_message = "{:.0f}".format(key / 60) + ' min ' + 'MACD-Signal crossed ' + indicator_states[key]['cross_state'] + '.'
+                    logger.debug('alert_message: ' + alert_message)
+                    telegram_message(alert_message)
                     indicator_states_last[key]['cross_state'] = indicator_states[key]['cross_state']
                 else:
-                    logger.info('NO MACD-SIGNAL CHANGE')
+                    logger.debug('No MACD-Signal change.')
 
                 if indicator_states[key]['zero_state'] != indicator_states_last[key]['zero_state']:
-                    logger.info('MACD-ZERO CROSS')
+                    alert_message = "{:.0f}".format(key / 60) + ' min ' + 'MACD-Zero crossed ' + indicator_states[key]['zero_state'] + '.'
+                    logger.debug('alert_message: ' + alert_message)
+                    telegram_message(alert_message)
                     indicator_states_last[key]['zero_state'] = indicator_states[key]['zero_state']
                 else:
-                    logger.info('NO MACD-ZERO CHANGE')
+                    logger.debug('No MACD-Zero change.')
             
             time.sleep(loop_time)
 
