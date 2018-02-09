@@ -32,12 +32,6 @@ console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-# Add handler to write log messages to file
-file_handler = logging.FileHandler(log_file)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
 if not os.path.exists('logs'):
     logger.info('Log directory not found. Creating.')
     try:
@@ -54,6 +48,12 @@ if not os.path.exists('logs/old'):
         logger.exception('Failed to create log archive directory. Exiting.')
         logger.exception(e)
         sys.exit(1)
+
+# Add handler to write log messages to file
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
 # Get candle data
@@ -136,10 +136,12 @@ if __name__ == '__main__':
         # Read config file
         config = configparser.ConfigParser()
         config.read(config_file)
-        polo_api = config['poloniex']['key']
-        logger.debug('Poloniex API: ' + polo_api)
-        polo_secret = config['poloniex']['secret']
-        logger.debug('Poloniex Secret: ' + polo_secret)
+
+        #polo_api = config['poloniex']['key']
+        #logger.debug('Poloniex API: ' + polo_api)
+        #polo_secret = config['poloniex']['secret']
+        #logger.debug('Poloniex Secret: ' + polo_secret)
+
         telegram_token = config['telegram']['token']
         logger.debug('Telegram Token: ' + telegram_token)
 
