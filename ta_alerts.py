@@ -172,11 +172,20 @@ if __name__ == '__main__':
     loop_count = 0
     while (True):
         loop_count += 1
+        logger.debug('loop_count: ' + str(loop_count))
         try:
             results = {}
             for test in analysis_bins:
                 candles = get_candles(product='BTC_STR', time_bin=test)
                 results[test] = macd_calc(data=candles)
+
+                print()
+                logger.info('Time Bin: ' + "{:.0f}".format(test / 60) + ' min')
+                logger.info('MACD: ' + str(results[test]['macd']))
+                logger.info('Signal: ' + str(results[test]['signal']))
+                logger.info('Histogram: ' + str(results[test]['histogram']))
+                print()
+                
                 time.sleep(1)
 
             for key in results:
@@ -190,6 +199,10 @@ if __name__ == '__main__':
                 else:
                     indicator_states[key]['zero_state'] = 'BELOW'
 
+                logger.debug('indicator_states[' + str(key) + '][\'cross_state\']: ' + indicator_states[key]['cross_state'])
+                logger.debug('indicator_states[' + str(key) + '][\'zero_state\']: ' + indicator_states[key]['zero_state'])
+                print()
+            
             alert_list = []
             for key in indicator_states:
                 if indicator_states[key]['cross_state'] != indicator_states_last[key]['cross_state']:
