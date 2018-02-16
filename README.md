@@ -10,3 +10,4 @@ Technical analysis alerts for cryptocurrency markets sent via Telegram messenger
 - Users choose currency pairs
 - Different technical analysis indicators
 - Users choose indicators
+- Cancel button on menus

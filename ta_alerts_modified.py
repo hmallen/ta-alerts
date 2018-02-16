@@ -12,9 +12,23 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import time
 
 # User modifiable parameters
-analysis_bins = [300, 900, 1800] # Desired candles sizes for analysis
 telegram_user = 382606465  # @hmallen
+product_list = ['BTC_STR']
+indicator_list = ['macd']
+analysis_bins = [300, 900, 1800] # Desired candles sizes for analysis
 loop_time = 60
+
+# Test dictionary
+ta_users = {telegram_user: {}}
+
+for prod in product_list:
+    ta_users[telegram_user]
+    for indic in indicator_list:
+        ta_users[telegram_user][prod] = indic
+        ta_users[telegram_user][prod][indic] = analysis_bins
+
+pprint(ta_users)
+sys.exit()
 
 # Required constants
 valid_bins = [300, 900, 1800, 7200, 14400, 86400]   # Valid candle sizes for API
