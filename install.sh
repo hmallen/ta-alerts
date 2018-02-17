@@ -11,8 +11,9 @@ cd ta-lib &&
 make &&
 sudo make install &&
 cd .. &&
-sudo yum install python36 python36-virtualenv &&
+sudo yum install python36 python36-virtualenv -y &&
 python3 -m virtualenv env &&
 source env/bin/activate &&
+pip install git+https://github.com/s4w3d0ff/python-poloniex.git &&
 pip install -r requirements.txt &&
 echo "Done!"
