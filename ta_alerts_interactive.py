@@ -774,10 +774,15 @@ if __name__ == '__main__':
                 for market in ta_users[user]:
                     for indicator in ta_users[user][market]:
                         for bin_size in ta_users[user][market][indicator]:
-                            if ta_users[user][market][indicator][bin_size]['state'] != ta_users[user][market][indicator][bin_size]['last']:
-                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + ' crossed ' + ta_users[user][market][indicator][bin_size]['state']
+                            if ta_users[user][market][indicator][bin_size]['state']['cross'] != ta_users[user][market][indicator][bin_size]['last']['cross']:
+                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Signal crossed ' + ta_users[user][market][indicator][bin_size]['state']['cross']
                                 telegram_alerts[user].append(alert)
-                                ta_users[user][market][indicator][bin_size]['last'] = ta_users[user][market][indicator][bin_size]['state']
+                                ta_users[user][market][indicator][bin_size]['last']['cross'] = ta_users[user][market][indicator][bin_size]['state']['cross']
+
+                            if ta_users[user][market][indicator][bin_size]['state']['zero'] != ta_users[user][market][indicator][bin_size]['last']['zero']:
+                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Zero crossed ' + ta_users[user][market][indicator][bin_size]['state']['zero']
+                                telegram_alerts[user].append(alert)
+                                ta_users[user][market][indicator][bin_size]['last']['zero'] = ta_users[user][market][indicator][bin_size]['state']['zero']
 
             if debug_mode:
                 print('ALERTS COMPILED')
