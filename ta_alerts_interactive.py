@@ -669,6 +669,10 @@ def calc_macd(data, long, short, signal, simple_output=False):
                        'signal': signal_current,
                        'histogram': histogram_current}
 
+        logger.debug('macd: ' + str(macd_values['macd']))
+        logger.debug('signal: ' + str(macd_values['signal']))
+        logger.debug('histogram: ' + str(macd_values['histogram']))
+
         if simple_output == True:
             output = {}
             if macd_values['histogram'] > 0:
