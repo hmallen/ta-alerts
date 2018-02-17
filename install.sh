@@ -10,7 +10,7 @@ cd ta-lib &&
 ./configure &&
 make &&
 sudo make install &&
-cd .. &&
+cd ../.. &&
 sudo yum install python36 python36-virtualenv -y &&
 python3 -m virtualenv env &&
 source env/bin/activate &&
