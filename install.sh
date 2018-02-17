@@ -10,4 +10,9 @@ cd ta-lib &&
 ./configure &&
 make &&
 sudo make install &&
+cd .. &&
+sudo yum install python36 python36-virtualenv &&
+python3 -m virtualenv env &&
+source env/bin/activate &&
+pip install -r requirements.txt &&
 echo "Done!"
