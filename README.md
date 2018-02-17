@@ -4,7 +4,7 @@ Technical analysis alerts for cryptocurrency markets sent via Telegram messenger
 install.sh: Can be used for full install on Amazon AWI EC2. (CURRENTLY BROKEN)
 
 <b>To Do:</b>
-- Fix candle gathering for bin size > 30min
+- Save user indicators on restart
 - ATH
 - % Change
 - Different technical analysis indicators
@@ -15,3 +15,4 @@ install.sh: Can be used for full install on Amazon AWI EC2. (CURRENTLY BROKEN)
 - Multiple currency pairs
 - Users choose currency pairs
 - Users choose indicators
+- Fix candle gathering for bin size > 30min
