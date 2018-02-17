@@ -528,7 +528,7 @@ def telegram_myindicators(bot, update):
                     for bin_size in ta_users[telegram_user][market][indicator]:
                         current_indicators = (current_indicators +
                                               market.split('_')[1] + market.split('_')[0] +
-                                              ' - ' + candle_options[valid_bins.index(bin_size)] +
+                                              ': ' + candle_options[valid_bins.index(bin_size)] +
                                               ' ' + indicator.upper() + '\n')
             current_indicators.rstrip('\n')
             
