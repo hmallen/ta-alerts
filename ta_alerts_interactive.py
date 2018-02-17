@@ -523,10 +523,13 @@ def telegram_myindicators(bot, update):
         if telegram_check_user(telegram_user):
             current_indicators = 'Current indicator subscriptions:\n\n'
             for market in ta_users[telegram_user]:
-                current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0]# + ':\n'
+                #current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0]# + ':\n'
                 for indicator in ta_users[telegram_user][market]:
                     for bin_size in ta_users[telegram_user][market][indicator]:
-                        current_indicators = current_indicators + ' - ' + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '\n'
+                        current_indicators = (current_indicators +
+                                              market.split('_')[1] + market.split('_')[0] +
+                                              ' - ' + candle_options[valid_bins.index(bin_size)] +
+                                              ' ' + indicator.upper() + '\n')
             current_indicators.rstrip('\n')
             
             bot.send_message(chat_id=telegram_user, text=current_indicators)
