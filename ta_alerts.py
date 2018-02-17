@@ -110,11 +110,9 @@ def macd_calc(data, input_prices='close', long=26, short=10, signal=9):
         signal_current = signal[-1]
         histogram_current = histogram[-1]
 
-        macd_values = {
-            'macd': macd_current,
-            'signal': signal_current,
-            'histogram': histogram_current
-            }
+        macd_values = {'macd': macd_current,
+                       'signal': signal_current,
+                       'histogram': histogram_current}
 
         return macd_values
 

@@ -11,11 +11,12 @@ import sys
 import talib.abstract
 #from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+from telegram.error import TelegramError, Unauthorized, BadRequest, TimedOut, ChatMigrated, NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler, Updater, Filters
 import time
 
 # User-modifiable variables
-loop_time = 5
+loop_time = 30
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', action='store_true', default=False, help='Debug mode.')
@@ -144,12 +145,6 @@ def telegram_button(bot, update):
         telegram_user = query.message.chat_id
         data = query.data
 
-        print('QUERY: ', query)
-        print()
-        print('USER: ', telegram_user)
-        print('DATA: ', data)
-        print()
-
         answer_status = bot.answer_callback_query(query.id)
         logger.debug('[BUTTON] answer_status: ' + str(answer_status))
 
@@ -218,16 +213,23 @@ def telegram_button(bot, update):
 
             market = selection.split('|')[0]
             indicator = selection.split('|')[1]
-            candle = selection.split('|')[2]
+            candle = int(selection.split('|')[2])
 
             # Create dictionary slots for selections if not present
             if market not in ta_users[telegram_user]:
                 ta_users[telegram_user][market] = {}
             if indicator not in ta_users[telegram_user][market]:
-                ta_users[telegram_user][market][indicator] = []
+                ta_users[telegram_user][market][indicator] = {}
 
             # Add selections to dictionary
-            ta_users[telegram_user][market][indicator].append(int(candle))
+            ta_users[telegram_user][market][indicator][candle] = {'state': None, 'last': None}
+
+            products = market.split('_')
+            candle_selection = candle_options[valid_bins.index(candle)]
+
+            bot.send_message(chat_id=telegram_user, text=
+                             'Added indicator:\n' +
+                             products[1] + products[0] + ' ' + candle_selection + ' ' + indicator.upper())
             
     except Exception:
         logger.exception('Exception while responding to button press.')
@@ -449,6 +451,8 @@ def telegram_newindicator(bot, update):
     try:
         telegram_user = update.message.chat_id
 
+        logger.debug('User ' + str(telegram_user) + ' requesting new indicator.')
+
         if telegram_check_user(telegram_user):
             button_list = [
                 InlineKeyboardButton('X-BTC', callback_data='new-btc'),
@@ -525,8 +529,30 @@ def telegram_unknown(bot, update):
 
 
 def telegram_error(bot, update, error):
-    #Log errors caused by updates
-    logger.warning('Update "%s" caused error "%s"', update, error)
+    try:
+        raise error
+    except Unauthorized:
+        # remove update.message.chat_id from conversation list
+        pass
+    except BadRequest:
+        # handle malformed requests - read more below!
+        pass
+    except TimedOut:
+        # handle slow connection problems
+        logger.debug('Telegram exception TimedOut.')
+        print(update)
+        print(error)
+        print('TIMED OUT')
+        time.sleep(5)
+    except NetworkError:
+        # handle other connection problems
+        pass
+    except ChatMigrated as e:
+        # the chat_id of a group has changed, use e.new_chat_id instead
+        pass
+    except TelegramError:
+        # handle all other telegram related errors
+        pass
 
 
 #### ANALYSIS FUNCTIONS ####
@@ -562,11 +588,52 @@ def get_candles(product, time_bin):
             return candle_data
 
         else:
-            logger.error('Invalid time bin given to get_candles() function. Exiting.')
-            sys.exit(1)
+            logger.error('Invalid time bin given to get_candles() function.')
 
     except Exception:
         logger.exception('Exception while retrieving candle data.')
+        raise
+
+
+# Moving-Average Convergence/Divergence
+def calc_macd(data, long, short, signal, simple_output=False):
+    logger.debug('Calculating MACD.')
+    logger.debug('Long: ' + str(long))
+    logger.debug('Short: ' + str(short))
+    logger.debug('Signal: ' + str(signal))
+    
+    try:
+        macd, signal, histogram = talib.abstract.MACD(data, long, short, signal, price='close')
+
+        macd_current = macd[-1]
+        signal_current = signal[-1]
+        histogram_current = histogram[-1]
+
+        macd_values = {'macd': macd_current,
+                       'signal': signal_current,
+                       'histogram': histogram_current}
+
+        if simple_output == True:
+            output = {}
+            if macd_values['histogram'] > 0:
+                result = 'ABOVE'
+            else:
+                result = 'BELOW'
+            output['cross'] = result
+
+            if macd_values['macd'] > 0:
+                result = 'ABOVE'
+            else:
+                result = 'BELOW'
+            output['zero'] = result
+
+        else:
+            output = macd_values
+
+        return output
+
+    except Exception:
+        logger.exception('Exception while calculating MACD.')
         raise
 
 
@@ -628,7 +695,9 @@ if __name__ == '__main__':
     # Error handling
     updater.dispatcher.add_error_handler(telegram_error)
 
-    updater.start_polling(timeout=20)
+    #start_polling(poll_interval=0.0, timeout=10, network_delay=None, clean=False, bootstrap_retries=0, read_latency=2.0, allowed_updates=None)
+    #updater.start_polling(timeout=20)
+    updater.start_polling(timeout=20, bootstrap_retries=5, read_latency=20)
 
     # Poloniex API
     polo = poloniex.Poloniex()
@@ -638,10 +707,98 @@ if __name__ == '__main__':
             updater.bot.send_message(chat_id=user, text=
                                      'Program was restarted. Indicators set previously were deleted and need to be added again manually. Sorry for the inconvenience.')
 
+    loop_count = 0
     while(True):
         try:
-            print('ta_users:')
-            pprint(ta_users)
+            loop_count += 1
+            logger.debug('loop_count: ' + str(loop_count))
+            
+            if debug_mode:
+                print('BEGINNING LOOP')
+                print('ta_users:')
+                pprint(ta_users)
+                print()
+                
+            # Determine required candle data
+            user_requests = {}
+            for user in ta_users:
+                for market in ta_users[user]:
+                    if market not in user_requests:
+                        #user_requests[market] = []
+                        user_requests[market] = {}
+                    for indicator in ta_users[user][market]:
+                        for bin_size in ta_users[user][market][indicator]:
+                            if bin_size not in user_requests[market]:
+                                user_requests[market][bin_size] = {}
+
+            if debug_mode:
+                print('REQUESTS RETRIEVED')
+                print('user_requests:')
+                pprint(user_requests)
+                print()
+            
+            # Get candle data
+            for market in user_requests:
+                for bin_size in user_requests[market]:
+                    logger.debug('Retrieving candles: ' + market + ' / ' + str(bin_size))
+                    user_requests[market][bin_size]['candles'] = get_candles(product=market, time_bin=bin_size)
+                    time.sleep(1)
+
+            if debug_mode:
+                print('CANDLES GATHERED')
+                print('user_requests:')
+                pprint(user_requests)
+                print()
+            
+            # Perform technical analysis
+            for user in ta_users:
+                test_user = user
+                for market in ta_users[user]:
+                    for indicator in ta_users[user][market]:
+                        for bin_size in ta_users[user][market][indicator]:
+                            logger.debug('Performing analysis: ' + market + ' / ' + indicator + ' / ' + str(bin_size))
+                            if indicator == 'macd':
+                                ta_users[user][market][indicator][bin_size]['state'] = calc_macd(data=user_requests[market][bin_size]['candles'],
+                                                                                                 long=26, short=10, signal=9,
+                                                                                                 simple_output=True)
+                                if ta_users[user][market][indicator][bin_size]['last'] == None:
+                                    ta_users[user][market][indicator][bin_size]['last'] = ta_users[user][market][indicator][bin_size]['state']
+
+            if debug_mode:
+                print('ANALYSIS COMPLETE')
+
+            try:
+                if ta_users[test_user]['BTC_STR']['macd'][300]['last'] != None:
+                    if ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'ABOVE':
+                        ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'BELOW'
+                    else:
+                        ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'ABOVE'
+
+            except:
+                logger.exception('DEBUG EXCEPTION')
+
+            # Check for alerts
+            telegram_alerts = {}
+            for user in ta_users:
+                telegram_alerts[user] = []
+                for market in ta_users[user]:
+                    for indicator in ta_users[user][market]:
+                        for bin_size in ta_users[user][market][indicator]:
+                            if ta_users[user][market][indicator][bin_size]['state'] != ta_users[user][market][indicator][bin_size]['last']:
+                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + ' crossed ' + ta_users[user][market][indicator][bin_size]['state']
+                                telegram_alerts[user].append(alert)
+
+            if debug_mode:
+                print('ALERTS COMPILED')
+                for user in telegram_alerts:
+                    for alert in telegram_alerts[user]:
+                        logger.debug(str(user) + ': ' + alert)
+
+            # Send alerts to users
+            logger.debug('SEND ALERTS TO USERS')
+
+            if debug_mode:
+                print('ALERTS SENT')
 
             time.sleep(loop_time)
 
