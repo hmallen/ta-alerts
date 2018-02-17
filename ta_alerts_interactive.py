@@ -172,9 +172,17 @@ def telegram_button(bot, update):
         
         elif menu == 'del':
             logger.debug('[BUTTON-del] selection: ' + selection)
+
+            market = selection.split('|')[0]
+            indicator = selection.split('|')[1]
+            candle = int(selection.split('|')[2])
+
+            logger.debug('Deleting ta_users[' + str(telegram_user) + '][' + market + '][' + indicator + '][' + str(candle) + ']')
+
+            del ta_users[telegram_user][market][indicator][candle]
         
-        elif menu == 'my':
-            logger.debug('[BUTTON-my] selection: ' + selection)
+        #elif menu == 'my':
+            #logger.debug('[BUTTON-my] selection: ' + selection)
 
         # Second tier menu items
         elif menu == 'sel':
@@ -478,8 +486,16 @@ def telegram_delindicator(bot, update):
         telegram_user = update.message.chat_id
 
         if telegram_check_user(telegram_user):
-            bot.send_message(chat_id=telegram_user, text=
-                             'Stuff & Things')
+            button_list = []
+            for market in ta_users[telegram_user]:
+                for indicator in ta_users[telegram_user][market]:
+                    for bin_size in ta_users[telegram_user][market][indicator]:
+                        button_text =  market.split('_')[1] + market.split('_')[0] + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper()
+                        button_callback = 'del-' + market + '|' + indicator + '|' + str(bin_size)
+                    button_list.append(InlineKeyboardButton(button_text, callback_data=button_callback))
+            
+            reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
+            bot.send_message(chat_id=telegram_user, text='Choose an indicator to delete:', reply_markup=reply_markup)
 
         else:
             bot.send_message(chat_id=telegram_user, text=
@@ -498,10 +514,10 @@ def telegram_myindicators(bot, update):
 
         if telegram_check_user(telegram_user):
             current_indicators = 'Current indicator subscriptions:\n\n'
-            for market in ta_users[user]:
+            for market in ta_users[telegram_user]:
                 current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0] + ':\n'
-                for indicator in ta_users[user][market]:
-                    for bin_size in ta_users[user][market][indicator]:
+                for indicator in ta_users[telegram_user][market]:
+                    for bin_size in ta_users[telegram_user][market][indicator]:
                         current_indicators = current_indicators + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '\n'
             current_indicators.rstrip('\n')
             
