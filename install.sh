@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo yum update &&
-sudo yum groupinstall "Development tools" &&
+sudo yum update -y &&
+sudo yum groupinstall "Development tools" -y &&
 mkdir src &&
 cd src &&
 wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz &&
