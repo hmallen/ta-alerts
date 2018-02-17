@@ -765,7 +765,7 @@ if __name__ == '__main__':
                                                                                                  long=26, short=10, signal=9,
                                                                                                  simple_output=True)
                                 if ta_users[user][market][indicator][bin_size]['last'] == None:
-                                    ta_users[user][market][indicator[bin_size]['last'] = {}
+                                    ta_users[user][market][indicator][bin_size]['last'] = {}
                                     cross_val = ta_users[user][market][indicator][bin_size]['state']['cross']
                                     ta_users[user][market][indicator][bin_size]['last']['cross'] = cross_val
                                     zero_val = ta_users[user][market][indicator][bin_size]['state']['zero']
