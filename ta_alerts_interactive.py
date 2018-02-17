@@ -800,7 +800,7 @@ if __name__ == '__main__':
             for user in telegram_alerts:
                 for alert in telegram_alerts[user]:
                     logger.debug('Alert for user ' + str(user) + ': ' + alert)
-                    bot.send_message(chat_id=user, text=alert)
+                    updater.bot.send_message(chat_id=user, text=alert)
 
             if debug_mode:
                 print('ALERTS SENT')
