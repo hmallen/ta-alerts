@@ -377,15 +377,18 @@ def telegram_help(bot, update):
 
         if telegram_check_user(telegram_user):
             #bot.send_message(chat_id=telegram_user, text=help_text)
-            bot.send_message(chat_id=telegram_user, text=
-                             'Available Commands:\n' +
-                             '/connect - Connect to bot\n' +
-                             '/disconnect - Disconnect from bot\n' +
-                             '/help - This help menu\n' +
-                             '/list [command] [argument] (Type /list for more info)\n' +
-                             '/newindicator - Add a new indicator alert\n' +
-                             '/delindicator - Delete an indicator alert\n' +
-                             '/myindicators - List current indicator alerts')
+            help_text = ('Available Commands:\n' +
+                         '/connect - Connect to bot\n' +
+                         '/disconnect - Disconnect from bot\n' +
+                         '/help - This help menu\n' +
+                         '/list [command] [argument] (Type /list for more info)\n' +
+                         '/newindicator - Add a new indicator alert\n' +
+                         '/delindicator - Delete an indicator alert\n' +
+                         '/myindicators - List current indicator alerts')
+            if pepe_greeting == True:
+                help_text = help_text + '\n' + '/pepe - To summon Pepe'
+                
+            bot.send_message(chat_id=telegram_user, text=help_text)
 
     except Exception:
         logger.exception('Exception while sending help menu.')
@@ -761,8 +764,12 @@ if __name__ == '__main__':
                                 ta_users[user][market][indicator][bin_size]['state'] = calc_macd(data=user_requests[market][bin_size]['candles'],
                                                                                                  long=26, short=10, signal=9,
                                                                                                  simple_output=True)
-                                if ta_users[user][market][indicator][bin_size]['last'] == None:
-                                    ta_users[user][market][indicator][bin_size]['last'] = ta_users[user][market][indicator][bin_size]['state']
+                                if ta_users[user][market][indicator][bin_size]['last']['cross'] == None:
+                                    cross_val = ta_users[user][market][indicator][bin_size]['state']['cross']
+                                    ta_users[user][market][indicator][bin_size]['last']['cross'] = cross_val
+                                if ta_users[user][market][indicator][bin_size]['last']['zero'] == None:
+                                    zero_val = ta_users[user][market][indicator][bin_size]['state']['zero']
+                                    ta_users[user][market][indicator][bin_size]['last']['zero'] = zero_val
 
             if debug_mode:
                 print('ANALYSIS COMPLETE')
@@ -777,12 +784,14 @@ if __name__ == '__main__':
                             if ta_users[user][market][indicator][bin_size]['state']['cross'] != ta_users[user][market][indicator][bin_size]['last']['cross']:
                                 alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Signal crossed ' + ta_users[user][market][indicator][bin_size]['state']['cross']
                                 telegram_alerts[user].append(alert)
-                                ta_users[user][market][indicator][bin_size]['last']['cross'] = ta_users[user][market][indicator][bin_size]['state']['cross']
+                                cross_val = ta_users[user][market][indicator][bin_size]['state']['cross']
+                                ta_users[user][market][indicator][bin_size]['last']['cross'] = cross_val
 
                             if ta_users[user][market][indicator][bin_size]['state']['zero'] != ta_users[user][market][indicator][bin_size]['last']['zero']:
                                 alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Zero crossed ' + ta_users[user][market][indicator][bin_size]['state']['zero']
                                 telegram_alerts[user].append(alert)
-                                ta_users[user][market][indicator][bin_size]['last']['zero'] = ta_users[user][market][indicator][bin_size]['state']['zero']
+                                zero_val = ta_users[user][market][indicator][bin_size]['state']['zero']
+                                ta_users[user][market][indicator][bin_size]['last']['zero'] = zero_val
 
             if debug_mode:
                 print('ALERTS COMPILED')
