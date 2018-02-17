@@ -492,7 +492,7 @@ def telegram_delindicator(bot, update):
                     for bin_size in ta_users[telegram_user][market][indicator]:
                         button_text =  market.split('_')[1] + market.split('_')[0] + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper()
                         button_callback = 'del-' + market + '|' + indicator + '|' + str(bin_size)
-                    button_list.append(InlineKeyboardButton(button_text, callback_data=button_callback))
+                        button_list.append(InlineKeyboardButton(button_text, callback_data=button_callback))
             
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose an indicator to delete:', reply_markup=reply_markup)
@@ -511,6 +511,8 @@ def telegram_myindicators(bot, update):
     # List user's current indicators
     try:
         telegram_user = update.message.chat_id
+
+        logger.debug('User ' + str(telegram_user) + ' requesting indicator deletion.')
 
         if telegram_check_user(telegram_user):
             current_indicators = 'Current indicator subscriptions:\n\n'
