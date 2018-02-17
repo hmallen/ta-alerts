@@ -767,16 +767,6 @@ if __name__ == '__main__':
             if debug_mode:
                 print('ANALYSIS COMPLETE')
 
-            try:
-                if ta_users[test_user]['BTC_STR']['macd'][300]['last'] != None:
-                    if ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'ABOVE':
-                        ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'BELOW'
-                    else:
-                        ta_users[test_user]['BTC_STR']['macd'][300]['last'] == 'ABOVE'
-
-            except:
-                logger.exception('DEBUG EXCEPTION')
-
             # Check for alerts
             telegram_alerts = {}
             for user in ta_users:
@@ -787,15 +777,15 @@ if __name__ == '__main__':
                             if ta_users[user][market][indicator][bin_size]['state'] != ta_users[user][market][indicator][bin_size]['last']:
                                 alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + ' crossed ' + ta_users[user][market][indicator][bin_size]['state']
                                 telegram_alerts[user].append(alert)
+                                ta_users[user][market][indicator][bin_size]['last'] = ta_users[user][market][indicator][bin_size]['state']
 
             if debug_mode:
                 print('ALERTS COMPILED')
-                for user in telegram_alerts:
-                    for alert in telegram_alerts[user]:
-                        logger.debug(str(user) + ': ' + alert)
 
             # Send alerts to users
-            logger.debug('SEND ALERTS TO USERS')
+            for user in telegram_alerts:
+                for alert in telegram_alerts[user]:
+                    bot.send_message(chat_id=user, text=alert)
 
             if debug_mode:
                 print('ALERTS SENT')
