@@ -1,9 +1,10 @@
 # Technical analysis alerts (ta_alerts)
 Technical analysis alerts for cryptocurrency markets sent via Telegram messenger.
 
-install.sh: Can be used for full install on Amazon AWI EC2.
+install.sh: Can be used for full install on Amazon AWI EC2. (CURRENTLY BROKEN)
 
 <b>To Do:</b>
+- Fix candle gathering for bin size > 30min
 - ATH
 - % Change
 - Different technical analysis indicators
