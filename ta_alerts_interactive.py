@@ -746,9 +746,9 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('CANDLES GATHERED')
-                print('user_requests:')
-                pprint(user_requests)
-                print()
+                #print('user_requests:')
+                #pprint(user_requests)
+                #print()
             
             # Perform technical analysis
             for user in ta_users:
@@ -785,6 +785,7 @@ if __name__ == '__main__':
             # Send alerts to users
             for user in telegram_alerts:
                 for alert in telegram_alerts[user]:
+                    logger.debug('Alert for user ' + str(user) + ': ' + alert)
                     bot.send_message(chat_id=user, text=alert)
 
             if debug_mode:
