@@ -604,19 +604,20 @@ def get_candles(product, time_bin):
     try:
         if time_bin in valid_bins:
             if time_bin == 300:
-                start_time = time.time() - (300 * 27)
+                start_time = time.time() - (300 * 30)
             elif time_bin == 900:
-                start_time = time.time() - (900 * 27)
+                start_time = time.time() - (900 * 30)
             elif time_bin == 1800:
-                start_time = time.time() - (1800 * 27)
+                start_time = time.time() - (1800 * 30)
             elif time_bin == 7200:
-                start_time = time.time() - (7200 * 27)
+                start_time = time.time() - (7200 * 30)
             elif time_bin == 14400:
-                start_time = time.time() - (14400 * 27)
+                start_time = time.time() - (14400 * 30)
             elif time_bin == 86400:
-                start_time = time.time() - (86400 * 27)
+                start_time = time.time() - (86400 * 30)
+            end_time = time.time()
             
-            data = polo.returnChartData(product, period=time_bin, start=start_time)
+            data = polo.returnChartData(product, period=time_bin, start=start_time)#, end=end_time)
         
             candle_array = []
             for x in range(0, len(data)):
