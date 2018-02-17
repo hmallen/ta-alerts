@@ -180,6 +180,10 @@ def telegram_button(bot, update):
             logger.debug('Deleting ta_users[' + str(telegram_user) + '][' + market + '][' + indicator + '][' + str(candle) + ']')
 
             del ta_users[telegram_user][market][indicator][candle]
+
+            delete_message = 'Deleted indicator ' + market.split('_')[1] + market.split('_')[0] + ' ' + candle_options[valid_bins.index(candle)] + ' ' + indicator.upper()
+
+            bot.send_message(chat_id=telegram_user, text=delete_message)
         
         #elif menu == 'my':
             #logger.debug('[BUTTON-my] selection: ' + selection)
@@ -490,7 +494,7 @@ def telegram_delindicator(bot, update):
             for market in ta_users[telegram_user]:
                 for indicator in ta_users[telegram_user][market]:
                     for bin_size in ta_users[telegram_user][market][indicator]:
-                        button_text =  market.split('_')[1] + market.split('_')[0] + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper()
+                        button_text =  market.split('_')[1] + market.split('_')[0] + ' ' + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper()
                         button_callback = 'del-' + market + '|' + indicator + '|' + str(bin_size)
                         button_list.append(InlineKeyboardButton(button_text, callback_data=button_callback))
             
