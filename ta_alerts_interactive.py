@@ -236,30 +236,15 @@ def telegram_button(bot, update):
         raise
 
 
-def telegram_new(update, bot):
+def telegram_start(bot, update):
     try:
-        pass
+        telegram_user = update.message.chat_id
+
+        bot.send_message(chat_id=telegram_user, text=
+                         'Welcome to TA Alerts bot. Type /connect to begin.')
 
     except Exception:
-        logger.exception('Exception in telegram_new().')
-        raise
-
-
-def telegram_del(update, bot):
-    try:
-        pass
-
-    except Exception:
-        logger.exception('Exception in telegram_del().')
-        raise
-
-
-def telegram_my(update, bot):
-    try:
-        pass
-
-    except Exception:
-        logger.exception('Exception in telegram_my().')
+        logger.exception('Exception while executing start command.')
         raise
 
 
@@ -344,7 +329,8 @@ def telegram_disconnect(bot, update):
             logger.debug('[DISCONNECT] user_file: ' + users)
 
         else:
-            telegram_message = 'Not currently subscribed to technical analysis alerts.'
+            telegram_message = ('Not in list of active users.\n' +
+                                'Type /connect to connect to alert bot.')
 
         logger.debug('[DISCONNECT] telegram_message:\n' + telegram_message)
 
@@ -389,6 +375,11 @@ def telegram_help(bot, update):
                 help_text = help_text + '\n' + '/pepe - To summon Pepe'
                 
             bot.send_message(chat_id=telegram_user, text=help_text)
+
+        else:
+            bot.send_message(chat_id=telegram_user, text=
+                              'Not in list of active users.\n' +
+                              'Type /connect to connect to alert bot.')
 
     except Exception:
         logger.exception('Exception while sending help menu.')
@@ -443,6 +434,11 @@ def telegram_list(bot, update, args):
                                  'ex. /list markets usdt --> List all X-USDT markets\n' +
                                  '/list [command] to list arguments for a command\n' +
                                  'ex. /list markets --> List all base currency markets')
+
+        else:
+            bot.send_message(chat_id=telegram_user, text=
+                              'Not in list of active users.\n' +
+                              'Type /connect to connect to alert bot.')
             
     except Exception:
         logger.exception('Exception while handling list command.')
@@ -465,6 +461,11 @@ def telegram_newindicator(bot, update):
             ]
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=2), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose a market:', reply_markup=reply_markup)
+
+        else:
+            bot.send_message(chat_id=telegram_user, text=
+                              'Not in list of active users.\n' +
+                              'Type /connect to connect to alert bot.')
 
     except Exception:
         logger.exception('Exception while adding new indicator.')
@@ -496,8 +497,20 @@ def telegram_myindicators(bot, update):
         telegram_user = update.message.chat_id
 
         if telegram_check_user(telegram_user):
+            current_indicators = 'Current indicator subscriptions:\n\n'
+            for market in ta_users[user]:
+                current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0] + ':\n'
+                for indicator in ta_users[user][market]:
+                    for bin_size in ta_users[user][market][indicator]:
+                        current_indicators = current_indicators + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '\n'
+            current_indicators.rstrip('\n')
+            
+            bot.send_message(chat_id=telegram_user, text=current_indicators)
+
+        else:
             bot.send_message(chat_id=telegram_user, text=
-                             'Stuff & Things')
+                              'Not in list of active users.\n' +
+                              'Type /connect to connect to alert bot.')
 
     except Exception:
         logger.exception('Exception while listing current indicators.')
@@ -751,7 +764,7 @@ if __name__ == '__main__':
                 print('CANDLES GATHERED')
                 #print('user_requests:')
                 #pprint(user_requests)
-                #print()
+                print()
             
             # Perform technical analysis
             for user in ta_users:
@@ -773,6 +786,9 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('ANALYSIS COMPLETE')
+                print('ta_users:')
+                pprint(ta_users)
+                print()
 
             # Check for alerts
             telegram_alerts = {}
@@ -795,6 +811,7 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('ALERTS COMPILED')
+                print()
 
             # Send alerts to users
             for user in telegram_alerts:
@@ -804,6 +821,7 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('ALERTS SENT')
+                print()
 
             time.sleep(loop_time)
 
