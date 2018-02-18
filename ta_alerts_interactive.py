@@ -882,5 +882,5 @@ if __name__ == '__main__':
             updater.stop()
             logger.debug('Saving user indicators to file.')
             with open(ta_file, mode='w') as file:
-                json.dump(ta_users, file, ensure_ascii=False)
+                json.dump(ta_users, file, sort_keys=True, indent=4, ensure_ascii=False)
             sys.exit()
