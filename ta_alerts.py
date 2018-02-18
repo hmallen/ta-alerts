@@ -278,6 +278,7 @@ def telegram_connect(bot, update):
 
             telegram_message = 'Subscribed to technical analysis alerts.'
 
+            """
             with open(telegram_user_file, 'w') as user_file:
                 for x in range(0, len(connected_users)):
                     user_file.write(str(connected_users[x]))
@@ -286,6 +287,7 @@ def telegram_connect(bot, update):
             with open(telegram_user_file, 'r') as user_file:
                 users = user_file.read()
             logger.debug('[CONNECT] user_file: ' + users)
+            """
 
             connection_successful = True
 
@@ -331,6 +333,7 @@ def telegram_disconnect(bot, update):
             
             telegram_message = 'Unsubscribed from technical analysis alerts.'
 
+            """
             with open(telegram_user_file, 'w') as user_file:
                 for x in range(0, len(connected_users)):
                     user_file.write(str(connected_users[x]))
@@ -339,6 +342,7 @@ def telegram_disconnect(bot, update):
             with open(telegram_user_file, 'r') as user_file:
                 users = user_file.read()
             logger.debug('[DISCONNECT] user_file: ' + users)
+            """
 
             logger.debug('[DISCONNECT] telegram_message:\n' + telegram_message)
 
