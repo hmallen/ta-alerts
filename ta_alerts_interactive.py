@@ -722,6 +722,7 @@ if __name__ == '__main__':
             temp_dict = ta_users[user]
             del ta_users[user]
             ta_users[temp_user] = temp_dict
+        for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
                     for bin_size in ta_users[user][market][indicator]:
