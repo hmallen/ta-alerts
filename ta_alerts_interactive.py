@@ -721,6 +721,7 @@ if __name__ == '__main__':
     connected_users = []
     ta_users = {}
 
+    """
     if os.path.isfile(telegram_user_file):
         logger.info('Found Telegram user file. Loading connected users.')
         with open(telegram_user_file, 'r') as user_file:
@@ -739,6 +740,19 @@ if __name__ == '__main__':
         with open(telegram_user_file, 'w') as user_file:
             pass
     logger.debug('connected_users: ' + str(connected_users))
+    """
+
+    if os.path.isfile(ta_file):
+        logger.info('Found saved ta_users file. Loading connected users and indicators.')
+        with open(ta_file, 'r') as file:
+            ta_users = json.load(file)
+        if debug_mode == True:
+            print('Loaded ta_users file:')
+            pprint(ta_users)
+            print()
+
+    else:
+        logger.info('No user saved indicators file found. Starting fresh.')
 
     updater = Updater(token=telegram_token)
 
