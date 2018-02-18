@@ -717,11 +717,6 @@ if __name__ == '__main__':
         logger.info('Found saved ta_users file. Loading connected users and indicators.')
         with open(ta_file, 'r') as file:
             ta_users = json.load(file)
-        for user in ta_users:
-            temp_user = int(user)
-            temp_dict = ta_users[user]
-            del ta_users[user]
-            ta_users[temp_user] = temp_dict
             
         if debug_mode == True:
             print('Converted users from str --> int')
@@ -729,7 +724,13 @@ if __name__ == '__main__':
             print()
             time.sleep(10)
 
-        print('ROUND #1')
+        logger.debug('Round #1: ta_users str-->int conversion')
+        for user in ta_users:
+            temp_user = int(user)
+            temp_dict = ta_users[user]
+            del ta_users[user]
+            ta_users[temp_user] = temp_dict
+            
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
@@ -740,9 +741,14 @@ if __name__ == '__main__':
                         temp_dict = ta_users[user][market][indicator][bin_size]
                         del ta_users[user][market][indicator][bin_size]
                         ta_users[user][market][indicator][temp_bin_size] = temp_dict
-        pprint(ta_users)
-        time.sleep(5)
-        print('Round #2')
+
+        logger.debug('Round #2: ta_users str-->int conversion')
+        for user in ta_users:
+            temp_user = int(user)
+            temp_dict = ta_users[user]
+            del ta_users[user]
+            ta_users[temp_user] = temp_dict
+            
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
