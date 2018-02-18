@@ -519,7 +519,7 @@ def telegram_myindicators(bot, update):
 
 def telegram_check_user(bot, user, reply=True):
     try:
-        if user in connected_users:
+        if user in ta_users:
             return True
 
         elif reply == True:
