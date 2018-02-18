@@ -742,6 +742,7 @@ if __name__ == '__main__':
     updater = Updater(token=telegram_token)
 
     # Commands
+    updater.dispatcher.add_handler(CommandHandler('start', telegram_start))
     updater.dispatcher.add_handler(CommandHandler('connect', telegram_connect))
     updater.dispatcher.add_handler(CommandHandler('disconnect', telegram_disconnect))
     updater.dispatcher.add_handler(CommandHandler('pepe', telegram_pepe))
