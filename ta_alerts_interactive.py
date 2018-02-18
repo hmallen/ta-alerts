@@ -269,7 +269,7 @@ def telegram_connect(bot, update):
 
         connection_successful = False
 
-        if not telegram_check_user(telegram_user, reply=False):
+        if not telegram_check_user(user=telegram_user, reply=False):
             connected_users.append(telegram_user)
             
             #logger.debug('[CONNECT] chat_id: ' + str(telegram_user))
