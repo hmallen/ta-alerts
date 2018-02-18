@@ -806,8 +806,8 @@ if __name__ == '__main__':
             
             if debug_mode:
                 print('BEGINNING LOOP')
-                print('ta_users:')
-                pprint(ta_users)
+                logger.debug('ta_users:')
+                logger.debug(ta_users)
                 print()
                 
             # Determine required candle data
@@ -824,8 +824,8 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('REQUESTS RETRIEVED')
-                print('user_requests:')
-                pprint(user_requests)
+                logger.debug('user_requests:')
+                logger.debug(user_requests)
                 print()
             
             # Get candle data
@@ -861,8 +861,8 @@ if __name__ == '__main__':
 
             if debug_mode:
                 print('ANALYSIS COMPLETE')
-                print('ta_users:')
-                pprint(ta_users)
+                logger.debug('ta_users:')
+                logger.debug(ta_users)
                 print()
 
             # Check for alerts
