@@ -31,6 +31,7 @@ log_file = 'logs/' + datetime.datetime.now().strftime('%m%d%Y-%H%M%S') + '.log'
 telegram_config_file = 'config/config.ini'
 telegram_user_file = 'telegram_users.txt'
 telegram_pepe_file = 'resources/matrix_pepe.gif'
+ta_file = 'ta_users.json'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -875,5 +876,10 @@ if __name__ == '__main__':
             logger.exception(e)
 
         except KeyboardInterrupt:
+            logger.debug('Exit signal received.')
+            logger.debug('Stopping Telegram updater.')
             updater.stop()
+            logger.debug('Saving user indicators to file.')
+            with open(ta_file, mode='w') as file:
+                json.dump(ta_users, file, ensure_ascii=False)
             sys.exit()
