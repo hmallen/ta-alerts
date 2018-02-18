@@ -12,6 +12,8 @@ install.sh: Can be used for full install on Amazon AWI EC2. (CURRENTLY BROKEN)
 
 <b>Needs Testing:</b>
 - Connect multiple users
+
+<b>Done:</b>
 - Multiple currency pairs
 - Users choose currency pairs
 - Users choose indicators
