@@ -318,7 +318,7 @@ def telegram_disconnect(bot, update):
         telegram_user = update.message.chat_id
         print(type(telegram_user))
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             connected_users.remove(telegram_user)
 
             if telegram_user in ta_users:
@@ -371,7 +371,7 @@ def telegram_help(bot, update):
     try:
         telegram_user = update.message.chat_id
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             #bot.send_message(chat_id=telegram_user, text=help_text)
             help_text = ('Available Commands:\n' +
                          '/connect - Connect to bot\n' +
@@ -396,7 +396,7 @@ def telegram_list(bot, update, args):
         telegram_user = update.message.chat_id
         logger.debug('[/list] args: ' + str(args))
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             arg_length = len(args)
             if arg_length > 1:
                 list_com = args[0]
@@ -452,7 +452,7 @@ def telegram_newindicator(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting new indicator.')
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             button_list = [
                 InlineKeyboardButton('X-BTC', callback_data='new-btc'),
                 InlineKeyboardButton('X-ETH', callback_data='new-eth'),
@@ -474,7 +474,7 @@ def telegram_delindicator(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting indicator deletion.')
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             button_list = []
             for market in ta_users[telegram_user]:
                 for indicator in ta_users[telegram_user][market]:
@@ -498,7 +498,7 @@ def telegram_myindicators(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting indicator subscriptions.')
 
-        if telegram_check_user(bot=bot, update=update, user=telegram_user):
+        if telegram_check_user(bot=bot, user=telegram_user):
             current_indicators = 'Current indicator subscriptions:\n\n'
             for market in ta_users[telegram_user]:
                 #current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0]# + ':\n'
