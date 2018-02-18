@@ -717,12 +717,6 @@ if __name__ == '__main__':
         logger.info('Found saved ta_users file. Loading connected users and indicators.')
         with open(ta_file, 'r') as file:
             ta_users = json.load(file)
-            
-        if debug_mode == True:
-            print('Converted users from str --> int')
-            pprint(ta_users)
-            print()
-            time.sleep(10)
 
         logger.debug('Round #1: ta_users str-->int conversion')
         for user in ta_users:
