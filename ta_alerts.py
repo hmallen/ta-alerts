@@ -788,8 +788,8 @@ if __name__ == '__main__':
     updater.dispatcher.add_error_handler(telegram_error)
 
     #start_polling(poll_interval=0.0, timeout=10, network_delay=None, clean=False, bootstrap_retries=0, read_latency=2.0, allowed_updates=None)
-    #updater.start_polling(timeout=20, bootstrap_retries=5, read_latency=20)
-    updater.start_polling()
+    updater.start_polling(timeout=20, bootstrap_retries=5, read_latency=20)
+    #updater.start_polling()
 
     # Poloniex API
     polo = poloniex.Poloniex()
