@@ -882,7 +882,7 @@ if __name__ == '__main__':
             logger.debug('Sending shutdown warning to users.')
             for user in ta_users:
                 updater.bot.send_message(chat_id=user, text=
-                                         'TA Alerts is going down for maintenance. Your indicators are being saved. A message will be sent when TA Alerts is restarted. Sorry for any inconvenience.')
+                                         'TA Alerts is going down for maintenance. Your indicators will be saved. A message will be sent when TA Alerts is restarted. Sorry for any inconvenience.')
             logger.debug('Stopping Telegram updater.')
             updater.stop()
             logger.debug('Saving user indicators to file.')
