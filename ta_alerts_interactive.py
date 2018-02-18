@@ -768,7 +768,7 @@ if __name__ == '__main__':
         #updater.bot.send_message(chat_id=user, text=
                                  #'Program was restarted. Indicators set previously were deleted and need to be added again manually. Sorry for the inconvenience.')
         updater.bot.send_message(chat_id=user, text=
-                                 'Program restarted. Indicators reloaded. If you experience any issues, please report it to the developer. Thanks.')
+                                 'Program restarted. Your indicators have been reloaded. If you experience any issues, please report them to the developer. Thanks.')
 
     loop_count = 0
     while(True):
