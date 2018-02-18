@@ -722,6 +722,11 @@ if __name__ == '__main__':
             temp_dict = ta_users[user]
             del ta_users[user]
             ta_users[temp_user] = temp_dict
+        if debug_mode == True:
+            print('Converted users from str --> int')
+            pprint(ta_users)
+            print()
+            time.sleep(10)
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
@@ -732,11 +737,16 @@ if __name__ == '__main__':
                         temp_dict = ta_users[user][market][indicator][bin_size]
                         del ta_users[user][market][indicator][bin_size]
                         ta_users[user][market][indicator][temp_bin_size] = temp_dict
-                
         if debug_mode == True:
-            print('Loaded ta_users file:')
+            print('Converted bin sizes from str --> int')
             pprint(ta_users)
             print()
+            time.sleep(10)
+                
+        #if debug_mode == True:
+            #print('Loaded ta_users file:')
+            #pprint(ta_users)
+            #print()
 
     else:
         logger.info('No user saved indicators file found. Starting fresh.')
