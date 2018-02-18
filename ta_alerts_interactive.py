@@ -722,11 +722,14 @@ if __name__ == '__main__':
             temp_dict = ta_users[user]
             del ta_users[user]
             ta_users[temp_user] = temp_dict
+            
         if debug_mode == True:
             print('Converted users from str --> int')
             pprint(ta_users)
             print()
             time.sleep(10)
+
+        print('ROUND #1')
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
@@ -737,6 +740,22 @@ if __name__ == '__main__':
                         temp_dict = ta_users[user][market][indicator][bin_size]
                         del ta_users[user][market][indicator][bin_size]
                         ta_users[user][market][indicator][temp_bin_size] = temp_dict
+        pprint(ta_users)
+        time.sleep(5)
+        print('Round #2')
+        for user in ta_users:
+            for market in ta_users[user]:
+                for indicator in ta_users[user][market]:
+                    for bin_size in ta_users[user][market][indicator]:
+                        logger.debug('bin_size: ' + str(bin_size))
+                        temp_bin_size = int(bin_size)
+                        logger.debug('temp_bin_size: ' + str(temp_bin_size))
+                        temp_dict = ta_users[user][market][indicator][bin_size]
+                        del ta_users[user][market][indicator][bin_size]
+                        ta_users[user][market][indicator][temp_bin_size] = temp_dict
+        pprint(ta_users)
+        time.sleep(5)
+                        
         if debug_mode == True:
             print('Converted bin sizes from str --> int')
             pprint(ta_users)
