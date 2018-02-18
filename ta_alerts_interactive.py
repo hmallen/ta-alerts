@@ -726,7 +726,7 @@ if __name__ == '__main__':
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
                     for bin_size in ta_users[user][market][indicator]:
-                        logger.debug('bin_size: ' + bin_size)
+                        logger.debug('bin_size: ' + str(bin_size))
                         temp_bin_size = int(bin_size)
                         logger.debug('temp_bin_size: ' + str(temp_bin_size))
                         temp_dict = ta_users[user][market][indicator][bin_size]
