@@ -319,8 +319,6 @@ def telegram_disconnect(bot, update):
         print(type(telegram_user))
 
         if telegram_check_user(user=telegram_user):
-            connected_users.remove(telegram_user)
-
             if telegram_user in ta_users:
                 logger.debug('Deleting user: ' + str(telegram_user))
                 del ta_users[telegram_user]
