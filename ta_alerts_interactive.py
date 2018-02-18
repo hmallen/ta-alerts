@@ -764,12 +764,11 @@ if __name__ == '__main__':
     # Poloniex API
     polo = poloniex.Poloniex()
 
-    if len(connected_users) > 0:
-        for user in ta_users:
-            #updater.bot.send_message(chat_id=user, text=
-                                     #'Program was restarted. Indicators set previously were deleted and need to be added again manually. Sorry for the inconvenience.')
-            updater.bot.send_message(chat_id=user, text=
-                                     'Program restarted. Indicators reloaded. If you experience any issues, please report it to the developer. Thanks.')
+    for user in ta_users:
+        #updater.bot.send_message(chat_id=user, text=
+                                 #'Program was restarted. Indicators set previously were deleted and need to be added again manually. Sorry for the inconvenience.')
+        updater.bot.send_message(chat_id=user, text=
+                                 'Program restarted. Indicators reloaded. If you experience any issues, please report it to the developer. Thanks.')
 
     loop_count = 0
     while(True):
