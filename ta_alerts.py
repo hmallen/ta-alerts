@@ -499,7 +499,7 @@ def telegram_myindicators(bot, update):
         logger.debug('User ' + str(telegram_user) + ' requesting indicator subscriptions.')
 
         if telegram_check_user(user=telegram_user):
-            current_indicators = 'Current indicator subscriptions:\n\n'
+            current_indicators = 'Current indicator subscriptions:\n'
             for market in ta_users[telegram_user]:
                 #current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0]# + ':\n'
                 for indicator in ta_users[telegram_user][market]:
