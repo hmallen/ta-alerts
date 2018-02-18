@@ -519,7 +519,7 @@ def telegram_myindicators(bot, update):
 
 def telegram_check_user(bot, user, reply=True):
     try:
-        if str(user) in ta_users:
+        if user in ta_users:
             return True
 
         elif reply == True:
@@ -718,6 +718,10 @@ if __name__ == '__main__':
         with open(ta_file, 'r') as file:
             ta_users = json.load(file)
         for user in ta_users:
+            temp_user = int(user)
+            temp_dict = ta_users[user]
+            del ta_users[user]
+            ta_users[temp_user] = temp_dict
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
                     for bin_size in ta_users[user][market][indicator]:
