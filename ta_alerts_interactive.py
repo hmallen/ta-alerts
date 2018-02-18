@@ -746,6 +746,15 @@ if __name__ == '__main__':
         logger.info('Found saved ta_users file. Loading connected users and indicators.')
         with open(ta_file, 'r') as file:
             ta_users = json.load(file)
+        for user in ta_users:
+            for market in ta_users[user]:
+                for indicator in ta_users[user][market]:
+                    for bin_size in ta_users[user][market][indicator]:
+                        temp_bin_size = int(bin_size)
+                        temp_dict = ta_users[user][market][indicator][bin_size]
+                        del ta_users[user][market][indicator][bin_size]
+                        ta_users[user][market][indicator][temp_bin_size] = temp_dict
+                
         if debug_mode == True:
             print('Loaded ta_users file:')
             pprint(ta_users)
