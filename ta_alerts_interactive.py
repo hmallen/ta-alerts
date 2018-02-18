@@ -318,7 +318,7 @@ def telegram_disconnect(bot, update):
         telegram_user = update.message.chat_id
         print(type(telegram_user))
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             connected_users.remove(telegram_user)
 
             if telegram_user in ta_users:
@@ -342,14 +342,10 @@ def telegram_disconnect(bot, update):
                 users = user_file.read()
             logger.debug('[DISCONNECT] user_file: ' + users)
 
-        else:
-            telegram_message = ('Not in list of active users.\n' +
-                                'Type /connect to connect to alert bot.')
+            logger.debug('[DISCONNECT] telegram_message:\n' + telegram_message)
 
-        logger.debug('[DISCONNECT] telegram_message:\n' + telegram_message)
-
-        # Notify user of disconnect
-        bot.send_message(chat_id=telegram_user, text=telegram_message)
+            # Notify user of disconnect
+            bot.send_message(chat_id=telegram_user, text=telegram_message)
         
     except Exception:
         logger.exception('Exception while disconnecting Telegram user.')
@@ -375,7 +371,7 @@ def telegram_help(bot, update):
     try:
         telegram_user = update.message.chat_id
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             #bot.send_message(chat_id=telegram_user, text=help_text)
             help_text = ('Available Commands:\n' +
                          '/connect - Connect to bot\n' +
@@ -390,11 +386,6 @@ def telegram_help(bot, update):
                 
             bot.send_message(chat_id=telegram_user, text=help_text)
 
-        else:
-            bot.send_message(chat_id=telegram_user, text=
-                              'Not in list of active users.\n' +
-                              'Type /connect to connect to alert bot.')
-
     except Exception:
         logger.exception('Exception while sending help menu.')
         raise
@@ -405,7 +396,7 @@ def telegram_list(bot, update, args):
         telegram_user = update.message.chat_id
         logger.debug('[/list] args: ' + str(args))
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             arg_length = len(args)
             if arg_length > 1:
                 list_com = args[0]
@@ -448,11 +439,6 @@ def telegram_list(bot, update, args):
                                  'ex. /list markets usdt --> List all X-USDT markets\n' +
                                  '/list [command] to list arguments for a command\n' +
                                  'ex. /list markets --> List all base currency markets')
-
-        else:
-            bot.send_message(chat_id=telegram_user, text=
-                              'Not in list of active users.\n' +
-                              'Type /connect to connect to alert bot.')
             
     except Exception:
         logger.exception('Exception while handling list command.')
@@ -466,7 +452,7 @@ def telegram_newindicator(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting new indicator.')
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             button_list = [
                 InlineKeyboardButton('X-BTC', callback_data='new-btc'),
                 InlineKeyboardButton('X-ETH', callback_data='new-eth'),
@@ -475,11 +461,6 @@ def telegram_newindicator(bot, update):
             ]
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=2), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose a market:', reply_markup=reply_markup)
-
-        else:
-            bot.send_message(chat_id=telegram_user, text=
-                              'Not in list of active users.\n' +
-                              'Type /connect to connect to alert bot.')
 
     except Exception:
         logger.exception('Exception while adding new indicator.')
@@ -493,7 +474,7 @@ def telegram_delindicator(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting indicator deletion.')
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             button_list = []
             for market in ta_users[telegram_user]:
                 for indicator in ta_users[telegram_user][market]:
@@ -504,11 +485,6 @@ def telegram_delindicator(bot, update):
             
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose an indicator to delete:', reply_markup=reply_markup)
-
-        else:
-            bot.send_message(chat_id=telegram_user, text=
-                              'Not in list of active users.\n' +
-                              'Type /connect to connect to alert bot.')
 
     except Exception:
         logger.exception('Exception while deleting indicator.')
@@ -522,7 +498,7 @@ def telegram_myindicators(bot, update):
 
         logger.debug('User ' + str(telegram_user) + ' requesting indicator subscriptions.')
 
-        if telegram_check_user(telegram_user):
+        if telegram_check_user(user=telegram_user):
             current_indicators = 'Current indicator subscriptions:\n\n'
             for market in ta_users[telegram_user]:
                 #current_indicators = current_indicators + market.split('_')[1] + market.split('_')[0]# + ':\n'
@@ -536,23 +512,18 @@ def telegram_myindicators(bot, update):
             
             bot.send_message(chat_id=telegram_user, text=current_indicators)
 
-        else:
-            bot.send_message(chat_id=telegram_user, text=
-                              'Not in list of active users.\n' +
-                              'Type /connect to connect to alert bot.')
-
     except Exception:
         logger.exception('Exception while listing current indicators.')
         raise
 
 
-def telegram_check_user(user, reply=True):
+def telegram_check_user(bot, user, reply=True):
     try:
         if user in connected_users:
             return True
 
         elif reply == True:
-            bot.send_message(chat_id=telegram_user, text=
+            bot.send_message(chat_id=user, text=
                              'Not in list of active users.\n' +
                              'Type /connect to connect to alert bot.')
             return False
