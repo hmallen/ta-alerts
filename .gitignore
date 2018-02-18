@@ -3,3 +3,5 @@ config/
 wheels/
 env/
 src/
+telegram_users.txt
+ta_users.json
