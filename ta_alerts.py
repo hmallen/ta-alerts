@@ -116,12 +116,12 @@ def get_list(com, arg=None):
                     if pair[0].lower() not in output:
                         output.append(pair[0].lower())
                 output.sort()
-            
+
         else:
             output.append('invalid')
 
         return output
-        
+
 
     except Exception:
         logger.exception('Exception while retrieving list data.')
@@ -131,12 +131,12 @@ def get_list(com, arg=None):
 #### TELEGRAM FUNCTIONS ####
 def telegram_build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
-    
+
     if header_buttons:
         menu.insert(0, header_buttons)
     if footer_buttons:
         menu.append(footer_buttons)
-        
+
     return menu
 
 
@@ -168,10 +168,10 @@ def telegram_button(bot, update):
             button_list = []
             for market in markets:
                 button_list.append(InlineKeyboardButton(market.upper(), callback_data=('sel-' + selection.upper() + '_' + market.upper())))
-            
+
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=4), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose a trade currency:', reply_markup=reply_markup)
-        
+
         elif menu == 'del':
             logger.debug('[BUTTON-del] selection: ' + selection)
 
@@ -186,7 +186,7 @@ def telegram_button(bot, update):
             delete_message = 'Deleted indicator ' + market.split('_')[1] + market.split('_')[0] + ' ' + candle_options[valid_bins.index(candle)] + ' ' + indicator.upper()
 
             bot.send_message(chat_id=telegram_user, text=delete_message)
-        
+
         #elif menu == 'my':
             #logger.debug('[BUTTON-my] selection: ' + selection)
 
@@ -199,7 +199,7 @@ def telegram_button(bot, update):
             button_list = []
             for indicator in indicators:
                 button_list.append(InlineKeyboardButton(indicator.upper(), callback_data=('indic-' + selection + '|' + indicator)))
-            
+
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose an indicator:', reply_markup=reply_markup)
 
@@ -211,11 +211,11 @@ def telegram_button(bot, update):
 
             market = selection.split('|')[0]
             indicator = selection.split('|')[1]
-            
+
             button_list = []
             for candle_pos in range(0, len(candle_options)):
                 button_list.append(InlineKeyboardButton(candle_options[candle_pos], callback_data=('bin-' + market + '|' + indicator + '|' + str(valid_bins[candle_pos]))))
-            
+
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose a candle length:', reply_markup=reply_markup)
 
@@ -244,7 +244,7 @@ def telegram_button(bot, update):
             bot.send_message(chat_id=telegram_user, text=
                              'Added indicator:\n' +
                              products[1] + products[0] + ' ' + candle_selection + ' ' + indicator.upper())
-            
+
     except Exception:
         logger.exception('Exception while responding to button press.')
         raise
@@ -271,7 +271,7 @@ def telegram_connect(bot, update):
 
         if not telegram_check_user(user=telegram_user, reply=False):
             connected_users.append(telegram_user)
-            
+
             #logger.debug('[CONNECT] chat_id: ' + str(telegram_user))
             logger.info('Telegram user connected: ' + str(telegram_user))
             #logger.debug('Connected Users: ' + str(connected_users))
@@ -293,7 +293,7 @@ def telegram_connect(bot, update):
 
         else:
             telegram_message = 'Already subscribed to technical analysis alerts.'
-            
+
         logger.debug('[CONNECT] telegram_message:\n' + telegram_message)
 
         # Notify user of connection
@@ -308,7 +308,7 @@ def telegram_connect(bot, update):
 
             bot.send_message(chat_id=telegram_user, text=
                              'Hi, I\'m TA Alert Bot! Type /help to see available commands.')
-            
+
     except Exception:
         logger.exception('Exception while connecting Telegram user.')
         raise
@@ -326,11 +326,11 @@ def telegram_disconnect(bot, update):
                 del ta_users[telegram_user]
             else:
                 logger.debug('User not found in dictionary. Skipping deletion.')
-            
+
             #logger.debug('[DISCONNECT] chat_id: ' + str(telegram_user))
             logger.info('Telegram user disconnected: ' + str(telegram_user))
             #logger.debug('Connected Users: ' + str(connected_users))
-            
+
             telegram_message = 'Unsubscribed from technical analysis alerts.'
 
             """
@@ -348,7 +348,7 @@ def telegram_disconnect(bot, update):
 
             # Notify user of disconnect
             bot.send_message(chat_id=telegram_user, text=telegram_message)
-        
+
     except Exception:
         logger.exception('Exception while disconnecting Telegram user.')
         raise
@@ -360,7 +360,7 @@ def telegram_pepe(bot, update=None, requesting_user=None):
             telegram_user = requesting_user
         else:
             telegram_user = update.message.chat_id
-            
+
         bot.send_document(chat_id=telegram_user, document=open(telegram_pepe_file, 'rb'))
 
     except Exception:
@@ -385,7 +385,7 @@ def telegram_help(bot, update):
                          '/myindicators - List current indicator alerts')
             if pepe_greeting == True:
                 help_text = help_text + '\n' + '/pepe - To summon Pepe'
-                
+
             bot.send_message(chat_id=telegram_user, text=help_text)
 
     except Exception:
@@ -416,7 +416,7 @@ def telegram_list(bot, update, args):
                         product_output = product_output.rstrip(', ')
 
                         bot.send_message(chat_id=telegram_user, text=product_output)
-                
+
                 else:
                     # FIX THIS / ADD ROUTING WHEN ONLY COMMAND GIVEN WITHOUT ARGUMENT
                     bot.send_message(chat_id=telegram_user, text=
@@ -425,7 +425,7 @@ def telegram_list(bot, update, args):
             elif arg_length > 0:
                 list_com = args[0]
                 requested_list = get_list(com=list_com)
-                
+
                 if list_com == 'markets':
                     market_output = ''
                     for market in requested_list:
@@ -433,7 +433,7 @@ def telegram_list(bot, update, args):
                     market_output = market_output.rstrip(', ')
 
                     bot.send_message(chat_id=telegram_user, text=market_output)
-                
+
             else:
                 bot.send_message(chat_id=telegram_user, text=
                                  'Missing Command and Argument:\n' +
@@ -441,7 +441,7 @@ def telegram_list(bot, update, args):
                                  'ex. /list markets usdt --> List all X-USDT markets\n' +
                                  '/list [command] to list arguments for a command\n' +
                                  'ex. /list markets --> List all base currency markets')
-            
+
     except Exception:
         logger.exception('Exception while handling list command.')
         raise
@@ -484,7 +484,7 @@ def telegram_delindicator(bot, update):
                         button_text =  market.split('_')[1] + market.split('_')[0] + ' ' + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper()
                         button_callback = 'del-' + market + '|' + indicator + '|' + str(bin_size)
                         button_list.append(InlineKeyboardButton(button_text, callback_data=button_callback))
-            
+
             reply_markup = InlineKeyboardMarkup(telegram_build_menu(button_list, n_cols=1), resize_keyboard=True)
             bot.send_message(chat_id=telegram_user, text='Choose an indicator to delete:', reply_markup=reply_markup)
 
@@ -511,7 +511,7 @@ def telegram_myindicators(bot, update):
                                               ' - ' + candle_options[valid_bins.index(bin_size)] +
                                               ' ' + indicator.upper() + '\n')
             current_indicators.rstrip('\n')
-            
+
             bot.send_message(chat_id=telegram_user, text=current_indicators)
 
     except Exception:
@@ -591,9 +591,9 @@ def get_candles(product, time_bin):
             elif time_bin == 86400:
                 start_time = time.time() - (86400 * 52)
             #end_time = time.time()
-            
+
             data = polo.returnChartData(product, period=time_bin, start=start_time)#, end=end_time)
-        
+
             candle_array = []
             for x in range(0, len(data)):
                 candle = data[x]
@@ -633,7 +633,7 @@ def calc_macd(data, long, short, signal, simple_output=False):
     logger.debug('Long: ' + str(long))
     logger.debug('Short: ' + str(short))
     logger.debug('Signal: ' + str(signal))
-    
+
     try:
         macd, signal, histogram = talib.abstract.MACD(data, long, short, signal, price='close')
 
@@ -682,7 +682,7 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         logger.info('Found Telegram config file.')
-    
+
     # Set Telegram token
     config.read(telegram_config_file)
     if debug_mode == False:
@@ -707,7 +707,7 @@ if __name__ == '__main__':
                 connected_users.append(int(user))
                 ta_users[int(user)] = {}
                 logger.info('Connected User: ' + user)
-    
+
     else:
         logger.info('No Telegram user file found. Creating empty file.')
         with open(telegram_user_file, 'w') as user_file:
@@ -726,7 +726,7 @@ if __name__ == '__main__':
             temp_dict = ta_users[user]
             del ta_users[user]
             ta_users[temp_user] = temp_dict
-            
+
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
@@ -744,7 +744,7 @@ if __name__ == '__main__':
             temp_dict = ta_users[user]
             del ta_users[user]
             ta_users[temp_user] = temp_dict
-            
+
         for user in ta_users:
             for market in ta_users[user]:
                 for indicator in ta_users[user][market]:
@@ -755,7 +755,7 @@ if __name__ == '__main__':
                         temp_dict = ta_users[user][market][indicator][bin_size]
                         del ta_users[user][market][indicator][bin_size]
                         ta_users[user][market][indicator][temp_bin_size] = temp_dict
-                        
+
         if debug_mode == True:
             print('Converted bin sizes from str --> int')
             pprint(ta_users)
@@ -805,13 +805,13 @@ if __name__ == '__main__':
         try:
             loop_count += 1
             logger.debug('loop_count: ' + str(loop_count))
-            
+
             if debug_mode:
                 print('BEGINNING LOOP')
                 logger.debug('ta_users:')
                 logger.debug(ta_users)
                 print()
-                
+
             # Determine required candle data
             user_requests = {}
             for user in ta_users:
@@ -829,7 +829,7 @@ if __name__ == '__main__':
                 logger.debug('user_requests:')
                 logger.debug(user_requests)
                 print()
-            
+
             # Get candle data
             for market in user_requests:
                 for bin_size in user_requests[market]:
@@ -842,7 +842,7 @@ if __name__ == '__main__':
                 #print('user_requests:')
                 #pprint(user_requests)
                 print()
-            
+
             # Perform technical analysis
             for user in ta_users:
                 test_user = user
@@ -872,16 +872,18 @@ if __name__ == '__main__':
             for user in ta_users:
                 telegram_alerts[user] = []
                 for market in ta_users[user]:
+                    market_name = market.split('_')[1] + market.split('_')[0]
+
                     for indicator in ta_users[user][market]:
                         for bin_size in ta_users[user][market][indicator]:
                             if ta_users[user][market][indicator][bin_size]['state']['cross'] != ta_users[user][market][indicator][bin_size]['last']['cross']:
-                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Signal crossed ' + ta_users[user][market][indicator][bin_size]['state']['cross']
+                                alert = market_name + ' ' + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Signal crossed ' + ta_users[user][market][indicator][bin_size]['state']['cross']
                                 telegram_alerts[user].append(alert)
                                 cross_val = ta_users[user][market][indicator][bin_size]['state']['cross']
                                 ta_users[user][market][indicator][bin_size]['last']['cross'] = cross_val
 
                             if ta_users[user][market][indicator][bin_size]['state']['zero'] != ta_users[user][market][indicator][bin_size]['last']['zero']:
-                                alert = candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Zero crossed ' + ta_users[user][market][indicator][bin_size]['state']['zero']
+                                alert = market_name + ' ' + candle_options[valid_bins.index(bin_size)] + ' ' + indicator.upper() + '-Zero crossed ' + ta_users[user][market][indicator][bin_size]['state']['zero']
                                 telegram_alerts[user].append(alert)
                                 zero_val = ta_users[user][market][indicator][bin_size]['state']['zero']
                                 ta_users[user][market][indicator][bin_size]['last']['zero'] = zero_val
