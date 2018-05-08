@@ -872,7 +872,7 @@ if __name__ == '__main__':
             for user in ta_users:
                 telegram_alerts[user] = []
                 for market in ta_users[user]:
-                    market_name = market.split('_')[1] + market.split('_')[0]
+                    market_name = market.split('_')[1] + '/' + market.split('_')[0]
 
                     for indicator in ta_users[user][market]:
                         for bin_size in ta_users[user][market][indicator]:
