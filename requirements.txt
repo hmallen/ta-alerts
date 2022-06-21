@@ -3,7 +3,7 @@ chardet==3.0.4
 configparser==3.5.0
 future==0.16.0
 idna==2.6
-numpy==1.14.0
+numpy==1.22.0
 poloniex==0.4.7
 python-telegram-bot==9.0.0
 requests==2.18.4
